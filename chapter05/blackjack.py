@@ -185,7 +185,7 @@ def monte_carlo_on_policy(episodes):
     states_no_usable_ace = np.zeros((10, 10))
     # initialze counts to 1 to avoid 0 being divided
     states_no_usable_ace_count = np.ones((10, 10))
-    for i in tqdm(range(0, episodes)):
+    for i in tqdm(range(episodes)):
         _, reward, player_trajectory = play(target_policy_player)
         for (usable_ace, player_sum, dealer_card), _ in player_trajectory:
             player_sum -= 12
@@ -246,7 +246,7 @@ def monte_carlo_off_policy(episodes):
     rhos = []
     returns = []
 
-    for i in range(0, episodes):
+    for i in range(episodes):
         _, reward, player_trajectory = play(behavior_policy_player, initial_state=initial_state)
 
         # get the importance ratio
@@ -344,7 +344,7 @@ def figure_5_3():
     runs = 100
     error_ordinary = np.zeros(episodes)
     error_weighted = np.zeros(episodes)
-    for i in tqdm(range(0, runs)):
+    for _ in tqdm(range(runs)):
         ordinary_sampling_, weighted_sampling_ = monte_carlo_off_policy(episodes)
         # get the squared error
         error_ordinary += np.power(ordinary_sampling_ - true_value, 2)

@@ -94,8 +94,8 @@ class Maze:
     def extend_state(self, state, factor):
         new_state = [state[0] * factor, state[1] * factor]
         new_states = []
-        for i in range(0, factor):
-            for j in range(0, factor):
+        for i in range(factor):
+            for j in range(factor):
                 new_states.append([new_state[0] + i, new_state[1] + j])
         return new_states
 
@@ -129,10 +129,7 @@ class Maze:
             y = min(y + 1, self.WORLD_WIDTH - 1)
         if [x, y] in self.obstacles:
             x, y = state
-        if [x, y] in self.GOAL_STATES:
-            reward = 1.0
-        else:
-            reward = 0.0
+        reward = 1.0 if [x, y] in self.GOAL_STATES else 0.0
         return [x, y], reward
 
 # a wrapper class for parameters of dyna algorithms
@@ -175,7 +172,7 @@ def choose_action(state, q_value, maze, dyna_params):
 class TrivialModel:
     # @rand: an instance of np.random.RandomState for sampling
     def __init__(self, rand=np.random):
-        self.model = dict()
+        self.model = {}
         self.rand = rand
 
     # feed the model with previous experience
@@ -183,7 +180,7 @@ class TrivialModel:
         state = deepcopy(state)
         next_state = deepcopy(next_state)
         if tuple(state) not in self.model.keys():
-            self.model[tuple(state)] = dict()
+            self.model[tuple(state)] = {}
         self.model[tuple(state)][action] = [list(next_state), reward]
 
     # randomly sample from previous experience
@@ -204,7 +201,7 @@ class TimeModel:
     # @rand: an instance of np.random.RandomState for sampling
     def __init__(self, maze, time_weight=1e-4, rand=np.random):
         self.rand = rand
-        self.model = dict()
+        self.model = {}
 
         # track the total time
         self.time = 0
@@ -218,7 +215,7 @@ class TimeModel:
         next_state = deepcopy(next_state)
         self.time += 1
         if tuple(state) not in self.model.keys():
-            self.model[tuple(state)] = dict()
+            self.model[tuple(state)] = {}
 
             # Actions that had never been tried before from a state were allowed to be considered in the planning step
             for action_ in self.maze.actions:
@@ -252,7 +249,7 @@ class PriorityModel(TrivialModel):
         # maintain a priority queue
         self.priority_queue = PriorityQueue()
         # track predecessors for every state
-        self.predecessors = dict()
+        self.predecessors = {}
 
     # add a @state-@action pair into the priority queue with priority @priority
     def insert(self, priority, state, action):
@@ -284,10 +281,10 @@ class PriorityModel(TrivialModel):
     def predecessor(self, state):
         if tuple(state) not in self.predecessors.keys():
             return []
-        predecessors = []
-        for state_pre, action_pre in list(self.predecessors[tuple(state)]):
-            predecessors.append([list(state_pre), action_pre, self.model[state_pre][action_pre][1]])
-        return predecessors
+        return [
+            [list(state_pre), action_pre, self.model[state_pre][action_pre][1]]
+            for state_pre, action_pre in list(self.predecessors[tuple(state)])
+        ]
 
 
 # play for an episode for Dyna-Q algorithm
@@ -317,7 +314,7 @@ def dyna_q(q_value, model, maze, dyna_params):
         model.feed(state, action, next_state, reward)
 
         # sample experience from the model
-        for t in range(0, dyna_params.planning_steps):
+        for _ in range(dyna_params.planning_steps):
             state_, action_, next_state_, reward_ = model.sample()
             q_value[state_[0], state_[1], action_] += \
                 dyna_params.alpha * (reward_ + dyna_params.gamma * np.max(q_value[next_state_[0], next_state_[1], :]) -
@@ -405,7 +402,7 @@ def figure_8_2():
     planning_steps = [0, 5, 50]
     steps = np.zeros((len(planning_steps), episodes))
 
-    for run in tqdm(range(runs)):
+    for _ in tqdm(range(runs)):
         for i, planning_step in enumerate(planning_steps):
             dyna_params.planning_steps = planning_step
             q_value = np.zeros(dyna_maze.q_size)
@@ -478,7 +475,7 @@ def figure_8_4():
     blocking_maze = Maze()
     blocking_maze.START_STATE = [5, 3]
     blocking_maze.GOAL_STATES = [[0, 8]]
-    blocking_maze.old_obstacles = [[3, i] for i in range(0, 8)]
+    blocking_maze.old_obstacles = [[3, i] for i in range(8)]
 
     # new obstalces will block the optimal path
     blocking_maze.new_obstacles = [[3, i] for i in range(1, 9)]
@@ -607,9 +604,9 @@ def example_8_4():
     # track the # of backups
     backups = np.zeros((runs, 2, num_of_mazes))
 
-    for run in range(0, runs):
-        for i in range(0, len(method_names)):
-            for mazeIndex, maze in zip(range(0, len(mazes)), mazes):
+    for run in range(runs):
+        for i in range(len(method_names)):
+            for mazeIndex, maze in zip(range(len(mazes)), mazes):
                 print('run %d, %s, maze size %d' % (run, method_names[i], maze.WORLD_HEIGHT * maze.WORLD_WIDTH))
 
                 # initialize the state action values
@@ -640,7 +637,7 @@ def example_8_4():
     # Dyna-Q performs several backups per step
     backups[1, :] *= params_dyna.planning_steps + 1
 
-    for i in range(0, len(method_names)):
+    for i in range(len(method_names)):
         plt.plot(np.arange(1, num_of_mazes + 1), backups[i, :], label=method_names[i])
     plt.xlabel('maze resolution factor')
     plt.ylabel('backups until optimal solution')
