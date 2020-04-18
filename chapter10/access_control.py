@@ -128,10 +128,12 @@ class ValueFunction:
 
     # get indices of active tiles for given state and action
     def get_active_tiles(self, free_servers, priority, action):
-        active_tiles = tiles(self.hash_table, self.num_of_tilings,
-                            [self.server_scale * free_servers, self.priority_scale * priority],
-                            [action])
-        return active_tiles
+        return tiles(
+            self.hash_table,
+            self.num_of_tilings,
+            [self.server_scale * free_servers, self.priority_scale * priority],
+            [action],
+        )
 
     # estimate the value of given state and action without subtracting average
     def value(self, free_servers, priority, action):

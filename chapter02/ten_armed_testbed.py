@@ -87,10 +87,7 @@ class Bandit:
         elif self.gradient:
             one_hot = np.zeros(self.k)
             one_hot[action] = 1
-            if self.gradient_baseline:
-                baseline = self.average_reward
-            else:
-                baseline = 0
+            baseline = self.average_reward if self.gradient_baseline else 0
             self.q_estimation += self.step_size * (reward - baseline) * (one_hot - self.action_prob)
         else:
             # update estimation with constant step size
@@ -149,8 +146,7 @@ def figure_2_2(runs=2000, time=1000):
 
 
 def figure_2_3(runs=2000, time=1000):
-    bandits = []
-    bandits.append(Bandit(epsilon=0, initial=5, step_size=0.1))
+    bandits = [Bandit(epsilon=0, initial=5, step_size=0.1)]
     bandits.append(Bandit(epsilon=0.1, initial=0, step_size=0.1))
     best_action_counts, _ = simulate(runs, time, bandits)
 
@@ -165,8 +161,7 @@ def figure_2_3(runs=2000, time=1000):
 
 
 def figure_2_4(runs=2000, time=1000):
-    bandits = []
-    bandits.append(Bandit(epsilon=0, UCB_param=2, sample_averages=True))
+    bandits = [Bandit(epsilon=0, UCB_param=2, sample_averages=True)]
     bandits.append(Bandit(epsilon=0.1, sample_averages=True))
     _, average_rewards = simulate(runs, time, bandits)
 
@@ -181,8 +176,12 @@ def figure_2_4(runs=2000, time=1000):
 
 
 def figure_2_5(runs=2000, time=1000):
-    bandits = []
-    bandits.append(Bandit(gradient=True, step_size=0.1, gradient_baseline=True, true_reward=4))
+    bandits = [
+        Bandit(
+            gradient=True, step_size=0.1, gradient_baseline=True, true_reward=4
+        )
+    ]
+
     bandits.append(Bandit(gradient=True, step_size=0.1, gradient_baseline=False, true_reward=4))
     bandits.append(Bandit(gradient=True, step_size=0.4, gradient_baseline=True, true_reward=4))
     bandits.append(Bandit(gradient=True, step_size=0.4, gradient_baseline=False, true_reward=4))

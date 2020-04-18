@@ -67,10 +67,7 @@ def compute_state_value(in_place=True, discount=1.0):
     new_state_values = np.zeros((WORLD_SIZE, WORLD_SIZE))
     iteration = 0
     while True:
-        if in_place:
-            state_values = new_state_values
-        else:
-            state_values = new_state_values.copy()
+        state_values = new_state_values if in_place else new_state_values.copy()
         old_state_values = state_values.copy()
 
         for i in range(WORLD_SIZE):

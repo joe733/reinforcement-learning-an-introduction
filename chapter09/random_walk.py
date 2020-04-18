@@ -126,7 +126,7 @@ class TilingsValueFunction:
     def value(self, state):
         stateValue = 0.0
         # go through all the tilings
-        for tilingIndex in range(0, len(self.tilings)):
+        for tilingIndex in range(len(self.tilings)):
             # find the active tile in current tiling
             tileIndex = (state - self.tilings[tilingIndex]) // self.tileWidth
             stateValue += self.params[tilingIndex, tileIndex]
@@ -142,7 +142,7 @@ class TilingsValueFunction:
         delta /= self.numOfTilings
 
         # go through all the tilings
-        for tilingIndex in range(0, len(self.tilings)):
+        for tilingIndex in range(len(self.tilings)):
             # find the active tile in current tiling
             tileIndex = (state - self.tilings[tilingIndex]) // self.tileWidth
             self.params[tilingIndex, tileIndex] += delta
@@ -159,11 +159,10 @@ class BasesValueFunction:
 
         # set up bases function
         self.bases = []
-        if type == POLYNOMIAL_BASES:
-            for i in range(0, order + 1):
+        for i in range(order + 1):
+            if type == POLYNOMIAL_BASES:
                 self.bases.append(lambda s, i=i: pow(s, i))
-        elif type == FOURIER_BASES:
-            for i in range(0, order + 1):
+            elif type == FOURIER_BASES:
                 self.bases.append(lambda s, i=i: np.cos(i * np.pi * s))
 
     # get the value of @state
@@ -250,7 +249,7 @@ def semi_gradient_temporal_difference(value_function, n, alpha):
                 returns += value_function.value(states[update_time + n])
             state_to_update = states[update_time]
             # update the value function
-            if not state_to_update in END_STATES:
+            if state_to_update not in END_STATES:
                 delta = alpha * (returns - value_function.value(state_to_update))
                 value_function.update(delta, state_to_update)
         if update_time == T - 1:
@@ -265,7 +264,7 @@ def figure_9_1(true_value):
     # we have 10 aggregations in this example, each has 100 states
     value_function = ValueFunction(10)
     distribution = np.zeros(N_STATES + 2)
-    for ep in tqdm(range(episodes)):
+    for _ in tqdm(range(episodes)):
         gradient_monte_carlo(value_function, alpha, distribution)
 
     distribution /= np.sum(distribution)
@@ -294,7 +293,7 @@ def figure_9_2_left(true_value):
     episodes = int(1e5)
     alpha = 2e-4
     value_function = ValueFunction(10)
-    for ep in tqdm(range(episodes)):
+    for _ in tqdm(range(episodes)):
         semi_gradient_temporal_difference(value_function, 1, alpha)
 
     stateValues = [value_function.value(i) for i in STATES]
@@ -325,7 +324,7 @@ def figure_9_2_right(true_value):
             for alpha_ind, alpha in zip(range(len(alphas)), alphas):
                 # we have 20 aggregations in this example
                 value_function = ValueFunction(20)
-                for ep in range(0, episodes):
+                for _ in range(episodes):
                     semi_gradient_temporal_difference(value_function, step, alpha)
                     # calculate the RMS error
                     state_value = np.asarray([value_function.value(i) for i in STATES])
@@ -365,7 +364,7 @@ def figure_9_5(true_value):
 
     # track errors for each episode
     errors = np.zeros((len(alphas), len(orders), episodes))
-    for run in range(runs):
+    for _ in range(runs):
         for i in range(len(orders)):
             value_functions = [BasesValueFunction(orders[i], POLYNOMIAL_BASES), BasesValueFunction(orders[i], FOURIER_BASES)]
             for j in range(len(value_functions)):
@@ -415,7 +414,7 @@ def figure_9_10(true_value):
 
     # track errors for each episode
     errors = np.zeros((len(labels), episodes))
-    for run in range(runs):
+    for _ in range(runs):
         # initialize value functions for multiple tilings and single tiling
         value_functions = [TilingsValueFunction(num_of_tilings, tile_width, tiling_offset),
                          ValueFunction(N_STATES // tile_width)]
@@ -440,7 +439,7 @@ def figure_9_10(true_value):
     # average over independent runs
     errors /= runs
 
-    for i in range(0, len(labels)):
+    for i in range(len(labels)):
         plt.plot(errors[i], label=labels[i])
     plt.xlabel('Episodes')
     # The book plots RMSVE, which is RMSE weighted by a state distribution

@@ -142,9 +142,9 @@ def q_learning(q_value, step_size=ALPHA):
 # print optimal policy
 def print_optimal_policy(q_value):
     optimal_policy = []
-    for i in range(0, WORLD_HEIGHT):
+    for i in range(WORLD_HEIGHT):
         optimal_policy.append([])
-        for j in range(0, WORLD_WIDTH):
+        for j in range(WORLD_WIDTH):
             if [i, j] == GOAL:
                 optimal_policy[-1].append('G')
                 continue
@@ -173,10 +173,10 @@ def figure_6_4():
 
     rewards_sarsa = np.zeros(episodes)
     rewards_q_learning = np.zeros(episodes)
-    for r in tqdm(range(runs)):
+    for _ in tqdm(range(runs)):
         q_sarsa = np.zeros((WORLD_HEIGHT, WORLD_WIDTH, 4))
         q_q_learning = np.copy(q_sarsa)
-        for i in range(0, episodes):
+        for i in range(episodes):
             # cut off the value by -100 to draw the figure more elegantly
             # rewards_sarsa[i] += max(sarsa(q_sarsa), -100)
             # rewards_q_learning[i] += max(q_learning(q_q_learning), -100)
@@ -218,11 +218,11 @@ def figure_6_6():
     INT_SARSA = 3
     INT_EXPECTED_SARSA = 4
     INT_QLEARNING = 5
-    methods = range(0, 6)
+    methods = range(6)
 
     performace = np.zeros((6, len(step_sizes)))
-    for run in range(runs):
-        for ind, step_size in tqdm(list(zip(range(0, len(step_sizes)), step_sizes))):
+    for _ in range(runs):
+        for ind, step_size in tqdm(list(zip(range(len(step_sizes)), step_sizes))):
             q_sarsa = np.zeros((WORLD_HEIGHT, WORLD_WIDTH, 4))
             q_expected_sarsa = np.copy(q_sarsa)
             q_q_learning = np.copy(q_sarsa)

@@ -37,19 +37,19 @@ def temporal_difference(values, alpha=0.1, batch=False):
     state = 3
     trajectory = [state]
     rewards = [0]
+    # Assume all rewards are 0
+    reward = 0
     while True:
         old_state = state
         if np.random.binomial(1, 0.5) == ACTION_LEFT:
             state -= 1
         else:
             state += 1
-        # Assume all rewards are 0
-        reward = 0
         trajectory.append(state)
         # TD update
         if not batch:
             values[old_state] += alpha * (reward + values[state] - values[old_state])
-        if state == 6 or state == 0:
+        if state in [6, 0]:
             break
         rewards.append(reward)
     return trajectory, rewards
@@ -114,7 +114,7 @@ def rms_error():
         for r in tqdm(range(runs)):
             errors = []
             current_values = np.copy(VALUES)
-            for i in range(0, episodes):
+            for _ in range(episodes):
                 errors.append(np.sqrt(np.sum(np.power(TRUE_VALUE - current_values, 2)) / 5.0))
                 if method == 'TD':
                     temporal_difference(current_values, alpha=alpha)
@@ -133,13 +133,13 @@ def batch_updating(method, episodes, alpha=0.001):
     # perform 100 independent runs
     runs = 100
     total_errors = np.zeros(episodes)
-    for r in tqdm(range(0, runs)):
+    for _ in tqdm(range(runs)):
         current_values = np.copy(VALUES)
         errors = []
         # track shown trajectories and reward/return sequences
         trajectories = []
         rewards = []
-        for ep in range(episodes):
+        for _ in range(episodes):
             if method == 'TD':
                 trajectory_, rewards_ = temporal_difference(current_values, batch=True)
             else:
@@ -150,7 +150,7 @@ def batch_updating(method, episodes, alpha=0.001):
                 # keep feeding our algorithm with trajectories seen so far until state value function converges
                 updates = np.zeros(7)
                 for trajectory_, rewards_ in zip(trajectories, rewards):
-                    for i in range(0, len(trajectory_) - 1):
+                    for i in range(len(trajectory_) - 1):
                         if method == 'TD':
                             updates[trajectory_[i]] += rewards_[i] + current_values[trajectory_[i + 1]] - current_values[trajectory_[i]]
                         else:

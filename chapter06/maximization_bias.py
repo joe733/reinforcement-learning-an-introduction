@@ -39,7 +39,7 @@ ALPHA = 0.1
 GAMMA = 1.0
 
 # possible actions in B, maybe 10 actions
-ACTIONS_B = range(0, 10)
+ACTIONS_B = range(10)
 
 # all possible actions
 STATE_ACTIONS = [[ACTION_A_RIGHT, ACTION_A_LEFT], ACTIONS_B]
@@ -110,7 +110,7 @@ def figure_6_7():
         q = copy.deepcopy(INITIAL_Q)
         q1 = copy.deepcopy(INITIAL_Q)
         q2 = copy.deepcopy(INITIAL_Q)
-        for ep in range(0, episodes):
+        for ep in range(episodes):
             left_counts_q[run, ep] = q_learning(q)
             left_counts_double_q[run, ep] = q_learning(q1, q2)
     left_counts_q = left_counts_q.mean(axis=0)

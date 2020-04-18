@@ -188,7 +188,7 @@ def parameter_sweep(value_function_generator, runs, lambdas, alphas):
         for lambdaIndex, rate in enumerate(lambdas):
             for alphaIndex, alpha in enumerate(alphas[lambdaIndex]):
                 valueFunction = value_function_generator(rate, alpha)
-                for episode in range(episodes):
+                for _ in range(episodes):
                     random_walk(valueFunction)
                     stateValues = [valueFunction.value(state) for state in STATES]
                     errors[lambdaIndex][alphaIndex] += np.sqrt(np.mean(np.power(stateValues - TRUE_VALUE[1: -1], 2)))

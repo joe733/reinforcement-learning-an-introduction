@@ -72,10 +72,7 @@ def semi_gradient_off_policy_TD(state, theta, alpha):
     action = behavior_policy(state)
     next_state = step(state, action)
     # get the importance ratio
-    if action == DASHED:
-        rho = 0.0
-    else:
-        rho = 1.0 / BEHAVIOR_SOLID_PROBABILITY
+    rho = 0.0 if action == DASHED else 1.0 / BEHAVIOR_SOLID_PROBABILITY
     delta = REWARD + DISCOUNT * np.dot(FEATURES[next_state, :], theta) - \
             np.dot(FEATURES[state, :], theta)
     delta *= rho * alpha
@@ -111,10 +108,7 @@ def TDC(state, theta, weight, alpha, beta):
     action = behavior_policy(state)
     next_state = step(state, action)
     # get the importance ratio
-    if action == DASHED:
-        rho = 0.0
-    else:
-        rho = 1.0 / BEHAVIOR_SOLID_PROBABILITY
+    rho = 0.0 if action == DASHED else 1.0 / BEHAVIOR_SOLID_PROBABILITY
     delta = REWARD + DISCOUNT * np.dot(FEATURES[next_state, :], theta) - \
             np.dot(FEATURES[state, :], theta)
     theta += alpha * rho * (delta * FEATURES[state, :] - DISCOUNT * FEATURES[next_state, :] * np.dot(FEATURES[state, :], weight))
@@ -156,19 +150,16 @@ def expected_emphatic_TD(theta, emphasis, alpha):
     # we perform synchronous update for both theta and emphasis
     expected_update = 0
     expected_next_emphasis = 0.0
+    # When computing expected update target, if next state is not lower state, importance ratio will be 0,
+    # so we can safely ignore this case and assume next state is always lower state
+    next_state = LOWER_STATE
     # go through all the states
     for state in STATES:
         # compute rho(t-1)
-        if state == LOWER_STATE:
-            rho = 1.0 / BEHAVIOR_SOLID_PROBABILITY
-        else:
-            rho = 0
+        rho = 1.0 / BEHAVIOR_SOLID_PROBABILITY if state == LOWER_STATE else 0
         # update emphasis
         next_emphasis = DISCOUNT * rho * emphasis + INTEREST
         expected_next_emphasis += next_emphasis
-        # When computing expected update target, if next state is not lower state, importance ratio will be 0,
-        # so we can safely ignore this case and assume next state is always lower state
-        next_state = LOWER_STATE
         delta = REWARD + DISCOUNT * np.dot(FEATURES[next_state, :], theta) - np.dot(FEATURES[state, :], theta)
         expected_update += 1.0 / len(STATES) * BEHAVIOR_SOLID_PROBABILITY * next_emphasis * 1 / BEHAVIOR_SOLID_PROBABILITY * delta * FEATURES[state, :]
     theta += alpha * expected_update

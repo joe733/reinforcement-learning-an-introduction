@@ -40,21 +40,26 @@ class ShortCorridor:
         Returns:
             tuple of (reward, episode terminated?)
         """
-        if self.state == 0 or self.state == 2:
+        if self.state in [0, 2]:
             if go_right:
                 self.state += 1
             else:
                 self.state = max(0, self.state - 1)
+            return -1, False
+        elif self.state == 3:
+            if go_right:
+                self.state -= 1
+            else:
+                self.state += 1
+
+            # terminal state
+            return 0, True
         else:
             if go_right:
                 self.state -= 1
             else:
                 self.state += 1
 
-        if self.state == 3:
-            # terminal state
-            return 0, True
-        else:
             return -1, False
 
 def softmax(x):
